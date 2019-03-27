@@ -11,7 +11,7 @@ import ua.od.atomspace.sarafan.domain.User;
 public class UserController {
 
     @RequestMapping(value = "/api/users/currentUser", method = RequestMethod.GET,produces = "application/json")
-    public User user(@AuthenticationPrincipal User user) {
+    public User currentUser(@AuthenticationPrincipal User user) {
         return user;
     }
 }

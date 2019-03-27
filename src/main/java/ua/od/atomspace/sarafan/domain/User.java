@@ -12,7 +12,7 @@ import java.util.Set;
 
 public class User implements UserDetails {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)

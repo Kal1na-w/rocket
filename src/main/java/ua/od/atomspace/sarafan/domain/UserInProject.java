@@ -6,7 +6,7 @@ import java.util.Objects;
 @Entity
 public class UserInProject {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(targetEntity = User.class,cascade = {CascadeType.PERSIST})

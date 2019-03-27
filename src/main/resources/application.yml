@@ -1,0 +1,31 @@
+spring:
+  data:
+    rest:
+      base-path: /api
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+  main:
+    allow-bean-definition-overriding: true
+
+  freemarker:
+    expose-request-attributes: true
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/spring_db
+    username: SpringUser
+    password: ThePassword
+
+server:
+  port: 9000
+
+security:
+  oauth2:
+    client:
+      clientId: crmClient1
+      clientSecret: $2a$04$S0C1.iKHVet1ThTrhyoqHuANrsxkYBzcjN0E9UAbfoTsE58DFENBW
+      accessTokenUri: http://localhost:8081/auth/oauth/token
+      userAuthorizationUri: http://localhost:8081/signup
+    resource:
+      userInfoUri: http://localhost:8081/user/me

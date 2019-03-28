@@ -23,7 +23,7 @@
 
         methods: {
             createGroup() {
-                axios.post(window.$host+'courses',this.Course)
+                axios.get(window.$host+'courses')
                     .then((result) => {
                         console.log(result)
                     })

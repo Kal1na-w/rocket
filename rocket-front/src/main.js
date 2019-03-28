@@ -5,7 +5,7 @@ import Router from 'vue-router';
 import App from './App.vue';
 import router from './router';
 
-window.$host = 'http://127.0.0.1:8080/api/';
+window.$host = 'http://127.0.0.1:9000/api/';
 
 Vue.use(Router);
 

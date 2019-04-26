@@ -49,4 +49,20 @@ public class ContentController {
         }
     }
 
+    @Transactional
+    @PutMapping("/{id}")
+    public ResponseEntity<Content> put(@PathVariable Long id,@RequestBody Content content) {
+        if(contentRepository.findById(id).isPresent()) {
+            Content requestContent = entityManager.find(Content.class,id);
+            requestContent.setContext(content.getContext());
+            entityManager.persist(requestContent);
+            entityManager.flush();
+            entityManager.clear();
+            return new ResponseEntity<>(requestContent,HttpStatus.OK);
+        }
+        else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
 }

@@ -12,6 +12,9 @@ import ua.od.atomspace.rocket.repository.ProjectRepository;
 import ua.od.atomspace.rocket.repository.UserInProjectRepository;
 import ua.od.atomspace.rocket.repository.UserRepository;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Set;
 
@@ -23,6 +26,9 @@ public class UserInProjectController {
     private final UserRepository userRepository;
     private final ProjectRepository projectRepository;
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
     @Autowired
     public UserInProjectController(UserInProjectRepository userInProjectRepository, UserRepository userRepository, ProjectRepository projectRepository) {
         this.userInProjectRepository = userInProjectRepository;
@@ -31,17 +37,17 @@ public class UserInProjectController {
     }
 
 
-    @GetMapping("/byProject")
-    public ResponseEntity<Set<UserInProject>> allByProject(@RequestBody Project project) {
-        Set<UserInProject> userInProjects = userInProjectRepository.findAllByProject(project);
-        return new ResponseEntity<>(userInProjects, HttpStatus.OK);
-    }
-
-    @GetMapping("/byUser")
-    public ResponseEntity<Set<UserInProject>> allByUser(@RequestBody User user) {
-        Set<UserInProject> userInProjects = userInProjectRepository.findAllByUser(user);
-        return new ResponseEntity<>(userInProjects, HttpStatus.OK);
-    }
+//    @GetMapping("/byProject")
+//    public ResponseEntity<Set<UserInProject>> allByProject(@RequestBody Project project) {
+//        Set<UserInProject> userInProjects = userInProjectRepository.findAllByProject(project);
+//        return new ResponseEntity<>(userInProjects, HttpStatus.OK);
+//    }
+//
+//    @GetMapping("/byUser")
+//    public ResponseEntity<Set<UserInProject>> allByUser(@RequestBody User user) {
+//        Set<UserInProject> userInProjects = userInProjectRepository.findAllByUser(user);
+//        return new ResponseEntity<>(userInProjects, HttpStatus.OK);
+//    }
 
     @GetMapping
     public ResponseEntity<List<UserInProject>> getAll() {
@@ -57,23 +63,26 @@ public class UserInProjectController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-    @PostMapping
-    public ResponseEntity <UserInProject> post(@RequestBody UserInProject userInProject) {
-        userRepository.save(userInProject.getUser());
-        projectRepository.save(userInProject.getProject());
-        return new ResponseEntity<>(userInProjectRepository.save(userInProject),HttpStatus.CREATED);
-    }
 
+//    @Transactional
+//    @PostMapping
+//    public ResponseEntity <UserInProject> post(@RequestBody UserInProject userInProject) {
+//        entityManager.persist(userInProject);
+//        entityManager.flush();
+//        entityManager.clear();
+//        return new ResponseEntity<>(userInProject,HttpStatus.CREATED);
+//    }
+
+    @Transactional
     @PutMapping("/{id}")
     public ResponseEntity <UserInProject> put(@PathVariable("id") Long id, @RequestBody UserInProject userInProject) {
         if(userInProjectRepository.findById(id).isPresent()) {
-            UserInProject requestUserInProject = userInProjectRepository.findById(id).get();
+            UserInProject requestUserInProject = entityManager.find(UserInProject.class,id);
             requestUserInProject.setRoleInProject(userInProject.getRoleInProject());
-            requestUserInProject.setProject(userInProject.getProject());
-            requestUserInProject.setUser(userInProject.getUser());
             requestUserInProject.setProjectSubTeam(userInProject.getProjectSubTeam());
-            userRepository.save(userInProject.getUser());
-            projectRepository.save(userInProject.getProject());
+            entityManager.persist(requestUserInProject);
+            entityManager.flush();
+            entityManager.clear();
             return new ResponseEntity<>(requestUserInProject,HttpStatus.CREATED);
         }
         else {
@@ -81,14 +90,17 @@ public class UserInProjectController {
         }
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity <?> delete(@PathVariable("id") Long id) {
-        if(userInProjectRepository.findById(id).isPresent()) {
-            userInProjectRepository.delete(userInProjectRepository.findById(id).get());
-            return new ResponseEntity<>(HttpStatus.OK);
-        }
-        else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }
+//    @DeleteMapping("/{id}")
+//    public ResponseEntity <?> delete(@PathVariable("id") Long id) {
+//        if(userInProjectRepository.findById(id).isPresent()) {
+//            UserInProject userInProject = entityManager.find(UserInProject.class,id);
+//            entityManager.remove(userInProject);
+//            entityManager.flush();
+//            entityManager.clear();
+//            return new ResponseEntity<>(HttpStatus.OK);
+//        }
+//        else {
+//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//        }
+//    }
 }

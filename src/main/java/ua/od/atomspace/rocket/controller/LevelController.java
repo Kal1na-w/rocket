@@ -17,7 +17,7 @@ import javax.transaction.Transactional;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/api")
+@RequestMapping(value = "/api/levels")
 @CrossOrigin("*")
 public class LevelController {
 
@@ -36,15 +36,31 @@ public class LevelController {
     }
 
 
-    @GetMapping("/levels")
+    @GetMapping
     public ResponseEntity<List<Level>> getAll() {
         return new ResponseEntity<>(levelRepository.findAll(), HttpStatus.OK);
     }
 
-    @GetMapping("/levels/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<Level> get(@PathVariable Long id) {
         if(levelRepository.findById(id).isPresent()) {
             return new ResponseEntity<>(levelRepository.findById(id).get(),HttpStatus.OK);
+        }
+        else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @Transactional
+    @PutMapping("/{id}")
+    public ResponseEntity<Level> put(@PathVariable Long id,@RequestBody Level level) {
+        if(levelRepository.findById(id).isPresent()) {
+            Level requestLevel = entityManager.find(Level.class,id);
+            requestLevel.setName(level.getName());
+            entityManager.persist(requestLevel);
+            entityManager.flush();
+            entityManager.clear();
+            return new ResponseEntity<>(requestLevel,HttpStatus.OK);
         }
         else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

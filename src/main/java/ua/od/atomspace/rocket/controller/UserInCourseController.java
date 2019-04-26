@@ -11,6 +11,9 @@ import ua.od.atomspace.rocket.repository.CourseRepository;
 import ua.od.atomspace.rocket.repository.UserInCourseRepository;
 import ua.od.atomspace.rocket.repository.UserRepository;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Set;
 
@@ -22,6 +25,9 @@ public class UserInCourseController {
     private final UserRepository userRepository;
     private final CourseRepository courseRepository;
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
     @Autowired
     public UserInCourseController(UserInCourseRepository userInCourseRepository, UserRepository userRepository, CourseRepository courseRepository) {
         this.userInCourseRepository = userInCourseRepository;
@@ -29,17 +35,17 @@ public class UserInCourseController {
         this.courseRepository = courseRepository;
     }
 
-    @GetMapping("/byCourse")
-    public ResponseEntity<Set<UserInCourse>> allByCourse(@RequestBody Course course) {
-        Set<UserInCourse> userInCourses = userInCourseRepository.findAllByCourse(course);
-        return new ResponseEntity<>(userInCourses, HttpStatus.OK);
-    }
-
-    @GetMapping("/byUser")
-    public ResponseEntity<Set<UserInCourse>> allByUser(@RequestBody User user) {
-        Set<UserInCourse> userInCourses = userInCourseRepository.findAllByUser(user);
-        return new ResponseEntity<>(userInCourses, HttpStatus.OK);
-    }
+//    @GetMapping("/byCourse")
+//    public ResponseEntity<Set<UserInCourse>> allByCourse(@RequestBody Course course) {
+//        Set<UserInCourse> userInCourses = userInCourseRepository.findAllByCourse(course);
+//        return new ResponseEntity<>(userInCourses, HttpStatus.OK);
+//    }
+//
+//    @GetMapping("/byUser")
+//    public ResponseEntity<Set<UserInCourse>> allByUser(@RequestBody User user) {
+//        Set<UserInCourse> userInCourses = userInCourseRepository.findAllByUser(user);
+//        return new ResponseEntity<>(userInCourses, HttpStatus.OK);
+//    }
 
     @GetMapping
     public ResponseEntity<List<UserInCourse>> getAll() {
@@ -56,20 +62,25 @@ public class UserInCourseController {
         }
     }
 
-    @PostMapping
-    public ResponseEntity <UserInCourse> post(@RequestBody UserInCourse userInCourse) {
-        courseRepository.save(userInCourse.getCourse());
-        userRepository.save(userInCourse.getUser());
-        return new ResponseEntity<>(userInCourseRepository.save(userInCourse),HttpStatus.CREATED);
-    }
+//    @Transactional
+//    @PostMapping
+//    public ResponseEntity <UserInCourse> post(@RequestBody UserInCourse userInCourse) {
+//        entityManager.persist(userInCourse);
+//        entityManager.flush();
+//        entityManager.clear();
+//        return new ResponseEntity<>(userInCourse,HttpStatus.CREATED);
+//    }
 
+    @Transactional
     @PutMapping("/{id}")
     public ResponseEntity <UserInCourse> put(@PathVariable("id") Long id, @RequestBody UserInCourse userInCourse) {
         if(userInCourseRepository.findById(id).isPresent()) {
-            UserInCourse requestUserInCourse = userInCourseRepository.findById(id).get();
+            UserInCourse requestUserInCourse = entityManager.find(UserInCourse.class,id);
             requestUserInCourse.setRoleInCourse(userInCourse.getRoleInCourse());
-            requestUserInCourse.setProgress(userInCourse.getProgress());    //todo use clone()
-            requestUserInCourse.setContents(userInCourse.getContents());
+            requestUserInCourse.setProgress(userInCourse.getProgress());
+            entityManager.persist(requestUserInCourse);
+            entityManager.flush();
+            entityManager.clear();
             return new ResponseEntity<>(userInCourseRepository.save(requestUserInCourse),HttpStatus.CREATED);
         }
         else {
@@ -77,14 +88,18 @@ public class UserInCourseController {
         }
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity <?> delete(@PathVariable("id") Long id) {
-        if(userInCourseRepository.findById(id).isPresent()) {
-            userInCourseRepository.delete(userInCourseRepository.findById(id).get());
-            return new ResponseEntity<>(HttpStatus.OK);
-        }
-        else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }
+//    @Transactional
+//    @DeleteMapping("/{id}")
+//    public ResponseEntity <?> delete(@PathVariable("id") Long id) {
+//        if(userInCourseRepository.findById(id).isPresent()) {
+//            UserInCourse userInCourse = entityManager.find(UserInCourse.class,id);
+//            entityManager.remove(userInCourse);
+//            entityManager.flush();
+//            entityManager.clear();
+//            return new ResponseEntity<>(HttpStatus.OK);
+//        }
+//        else {
+//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//        }
+//    }
 }

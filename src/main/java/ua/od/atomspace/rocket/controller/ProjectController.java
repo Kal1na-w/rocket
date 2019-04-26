@@ -7,6 +7,9 @@ import org.springframework.web.bind.annotation.*;
 import ua.od.atomspace.rocket.domain.Project;
 import ua.od.atomspace.rocket.repository.ProjectRepository;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.transaction.Transactional;
 import java.util.List;
 
 @RestController
@@ -14,6 +17,9 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 public class ProjectController {
     private final ProjectRepository projectRepository;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Autowired
     public ProjectController(ProjectRepository projectRepository) {
@@ -35,29 +41,42 @@ public class ProjectController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
+    @Transactional
     @PostMapping
     public ResponseEntity <Project> post(@RequestBody Project project) {
-        return new ResponseEntity<>(projectRepository.save(project),HttpStatus.CREATED);
+        entityManager.persist(project);
+        entityManager.flush();
+        entityManager.clear();
+        return new ResponseEntity<>(project,HttpStatus.CREATED);
     }
 
+    @Transactional
     @PutMapping("/{id}")
     public ResponseEntity <Project> put(@PathVariable("id") Long id, @RequestBody Project project) {
         if(projectRepository.findById(id).isPresent()) {
-            Project requestProject = projectRepository.findById(id).get();
+            Project requestProject = entityManager.find(Project.class,id);
             requestProject.setName(project.getName());
-            requestProject.setUsers(project.getUsers());
             requestProject.setProjectStatus(project.getProjectStatus());
             requestProject.setGithub(project.getGithub());
-            return new ResponseEntity<>(projectRepository.save(requestProject),HttpStatus.CREATED);
+            entityManager.persist(requestProject);
+            entityManager.flush();
+            entityManager.clear();
+            return new ResponseEntity<>(requestProject,HttpStatus.OK);
         }
         else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
+    @Transactional
     @DeleteMapping("/{id}")
     public ResponseEntity <?> delete(@PathVariable("id") Long id) {
         if(projectRepository.findById(id).isPresent()) {
-            projectRepository.delete(projectRepository.findById(id).get());
+            Project project = entityManager.find(Project.class,id);
+            entityManager.remove(project);
+            entityManager.flush();
+            entityManager.clear();
             return new ResponseEntity<>(HttpStatus.OK);
         }
         else {

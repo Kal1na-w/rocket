@@ -101,32 +101,31 @@ public class CourseController {
             entityManager.persist(course);
             entityManager.flush();
             entityManager.clear();
-            return new ResponseEntity<>(level,HttpStatus.OK);
+            return new ResponseEntity<>(level,HttpStatus.CREATED);
         }
         else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
-    @Transactional
-    @PutMapping("/{courseId}/levels/{numberOfLevel}")
-    public ResponseEntity<Level> puttLevelToCourse(@PathVariable Long courseId,@PathVariable int numberOfLevel,@RequestBody Level level) {
-        if(courseRepository.findById(courseId).isPresent()) {
-
-            Level requestLevel = entityManager.find(
-                    Level.class,
-                    levelRepository.findByCourseAndNumberOfLevel(courseRepository.findById(courseId).get(),numberOfLevel).getId()
-            );
-            requestLevel.setName(level.getName());
-            entityManager.persist(requestLevel);
-            entityManager.flush();
-            entityManager.clear();
-            return new ResponseEntity<>(requestLevel,HttpStatus.OK);
-        }
-        else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }
+//    @Transactional
+//    @PutMapping("/{courseId}/levels/{numberOfLevel}")
+//    public ResponseEntity<Level> putLevelToCourse(@PathVariable Long courseId,@PathVariable int numberOfLevel,@RequestBody Level level) {
+//        if(courseRepository.findById(courseId).isPresent()) {
+//            Level requestLevel = entityManager.find(
+//                    Level.class,
+//                    levelRepository.findByCourseAndNumberOfLevel(courseRepository.findById(courseId).get(),numberOfLevel).getId()
+//            );
+//            requestLevel.setName(level.getName());
+//            entityManager.persist(requestLevel);
+//            entityManager.flush();
+//            entityManager.clear();
+//            return new ResponseEntity<>(requestLevel,HttpStatus.OK);
+//        }
+//        else {
+//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//        }
+//    }
 
     @GetMapping("{courseId}/levels/{numberOfLevel}")
     public ResponseEntity<Level> getLevelByCourse(@PathVariable Long courseId,@PathVariable int numberOfLevel) {
@@ -167,27 +166,6 @@ public class CourseController {
     }
 
     @Transactional
-    @PutMapping("/{courseId}/levels/{levelId}/contents/{contentId}")
-    public ResponseEntity<Content> putContentByLvl(@PathVariable Long courseId, @PathVariable Long levelId,@PathVariable Long contentId, @RequestBody Content content){
-        if(courseRepository.findById(courseId).isPresent()) {
-            if(levelRepository.findById(levelId).isPresent()) {
-                Content requestContent = entityManager.find(Content.class,contentId);
-                requestContent.setContext(content.getContext());
-                entityManager.persist(requestContent);
-                entityManager.flush();
-                entityManager.clear();
-                return new ResponseEntity<>(content,HttpStatus.OK);
-            }
-            else {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }
-        }
-        else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }
-
-    @Transactional
     @DeleteMapping("/{courseId}/levels/{levelId}/contents/{contentId}")
     public ResponseEntity<?> deleteContentByLvl(@PathVariable Long courseId, @PathVariable Long levelId, @PathVariable Long contentId){
         if(courseRepository.findById(courseId).isPresent()) {
@@ -207,6 +185,7 @@ public class CourseController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
 
     @Transactional
     @DeleteMapping("/{courseId}/levels/{numberOfLevel}")

@@ -41,7 +41,7 @@ public class CourseController {
 
 
     @GetMapping("/{id}")
-    public ResponseEntity <Course> get(@PathVariable("id") Long id) {
+    public ResponseEntity<Course> get(@PathVariable("id") Long id) {
         if(courseRepository.findById(id).isPresent()) {
             return new ResponseEntity<>(courseRepository.findById(id).get(),HttpStatus.OK);
         }
@@ -186,6 +186,20 @@ public class CourseController {
         }
     }
 
+    @GetMapping("/{courseId}/levels/{levelId}/contents")
+    public ResponseEntity<List<Content>> getContentByLevel(@PathVariable Long courseId,@PathVariable Long levelId) {
+        if(courseRepository.findById(courseId).isPresent()) {
+            if(levelRepository.findById(levelId).isPresent()) {
+                return new ResponseEntity<>(levelRepository.findById(levelId).get().getContents(),HttpStatus.OK);
+            }
+            else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        }
+        else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
 
     @Transactional
     @DeleteMapping("/{courseId}/levels/{numberOfLevel}")

@@ -2,7 +2,9 @@ package ua.od.atomspace.rocket.domain;
 
 
 import javax.persistence.*;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.util.List;
 import java.util.Objects;
@@ -31,8 +33,9 @@ public class Course {
     }
 
 
-    public Course(String name) {
+    public Course(String name,byte priority) {
         this.name = name;
+        this.priority = priority;
     }
 
     public Long getId() {
@@ -81,6 +84,8 @@ public class Course {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", users=" + users +
+                ", priority=" + priority +
+                ", levels=" + levels +
                 '}';
     }
 

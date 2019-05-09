@@ -1,7 +1,6 @@
 package ua.od.atomspace.rocket.domain;
 
 import javax.persistence.*;
-import javax.print.attribute.standard.MediaSize;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -16,7 +15,7 @@ public class User {
     private Long id;
 
     @ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)
-    @CollectionTable(name = "user_role",joinColumns = @JoinColumn(name = "user_id"))
+    @CollectionTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"))
     @Enumerated(EnumType.STRING)
     private Set<Role> roles;
 
@@ -38,13 +37,11 @@ public class User {
 
     private LocalDateTime lastVisit;
 
-
-    @OneToMany(targetEntity = UserInCourse.class,cascade = CascadeType.ALL,fetch = FetchType.EAGER,orphanRemoval = true,mappedBy = "user")
+    @OneToMany(targetEntity = UserInCourse.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true, mappedBy = "user")
     private Set<UserInCourse> courses;
 
-    @OneToMany(targetEntity = UserInProject.class,cascade = CascadeType.ALL,fetch = FetchType.EAGER,mappedBy = "user",orphanRemoval = true)
+    @OneToMany(targetEntity = UserInProject.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "user", orphanRemoval = true)
     private Set<UserInProject> projects;
-
 
     public User() {
     }
@@ -147,16 +144,8 @@ public class User {
 
     @Override
     public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", roles=" + roles +
-                ", username='" + username + '\'' +
-                ", password='" + password + '\'' +
-                ", email='" + email + '\'' +
-                ", telegram='" + telegram + '\'' +
-                ", lastVisit=" + lastVisit +
-                ", courses=" + courses +
-                ", projects=" + projects +
-                '}';
+        return "User{" + "id=" + id + ", roles=" + roles + ", username='" + username + '\'' + ", password='" + password
+                + '\'' + ", email='" + email + '\'' + ", telegram='" + telegram + '\'' + ", lastVisit=" + lastVisit
+                + ", courses=" + courses + ", projects=" + projects + '}';
     }
 }

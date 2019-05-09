@@ -5,11 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ua.od.atomspace.rocket.domain.Course;
 import ua.od.atomspace.rocket.domain.Level;
-import ua.od.atomspace.rocket.repository.CourseRepository;
 import ua.od.atomspace.rocket.repository.LevelRepository;
-import ua.od.atomspace.rocket.service.LevelService;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -22,17 +19,13 @@ import java.util.List;
 public class LevelController {
 
     private final LevelRepository levelRepository;
-    private final CourseRepository courseRepository;
-    private final LevelService levelService;
 
     @PersistenceContext
     private EntityManager entityManager;
 
     @Autowired
-    public LevelController(LevelRepository levelRepository, CourseRepository courseRepository, LevelService levelService) {
+    public LevelController(LevelRepository levelRepository) {
         this.levelRepository = levelRepository;
-        this.courseRepository = courseRepository;
-        this.levelService = levelService;
     }
 
 

@@ -16,30 +16,26 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-@Sql("/create-content-before.sql")
+@Sql(scripts = { "/create-content-before.sql", "/create-lvl-before.sql", "/create-courses-before.sql" })
 public class TestContentController {
+
 
     @Autowired
     private MockMvc mockMvc;
 
     @Test
-    public void testGetAll() throws Exception{
-       mockMvc.perform(get("/api/contents"))
-       .andDo(print())
-       .andExpect(status().isOk());
+    public void testGetAll() throws Exception {
+        mockMvc.perform(get("/api/contents")).andDo(print()).andExpect(status().isOk());
     }
 
     @Test
     public void testGet() throws Exception {
-        mockMvc.perform(get("/api/contents/1"))
-                .andDo(print())
-                .andExpect(status().isOk());
+        mockMvc.perform(get("/api/contents/1")).andDo(print()).andExpect(status().isOk());
     }
 
     @Test
     public void testPut() throws Exception {
-        mockMvc.perform(put("/api/contents/1").content("\"context\":\"Ok\""))
-                .andDo(print())
-                .andExpect(status().isCreated());
+        mockMvc.perform(put("/api/contents/1").content("{\"context\":\"Ok\"}").contentType("application/json"))
+                .andDo(print()).andExpect(status().isCreated());
     }
 }

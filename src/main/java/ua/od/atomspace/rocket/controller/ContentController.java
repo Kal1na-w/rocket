@@ -1,15 +1,11 @@
 package ua.od.atomspace.rocket.controller;
 
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ua.od.atomspace.rocket.domain.Content;
 import ua.od.atomspace.rocket.repository.ContentRepository;
-import ua.od.atomspace.rocket.repository.CourseRepository;
-import ua.od.atomspace.rocket.repository.LevelRepository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -20,17 +16,13 @@ import java.util.List;
 @RequestMapping(value = "/api/contents")
 @CrossOrigin("*")
 public class ContentController {
-    private final CourseRepository courseRepository;
-    private final LevelRepository levelRepository;
     private final ContentRepository contentRepository;
 
     @PersistenceContext
     private EntityManager entityManager;
 
     @Autowired
-    public ContentController(CourseRepository courseRepository, LevelRepository levelRepository, ContentRepository contentRepository) {
-        this.courseRepository = courseRepository;
-        this.levelRepository = levelRepository;
+    public ContentController(ContentRepository contentRepository) {
         this.contentRepository = contentRepository;
     }
 
@@ -41,26 +33,24 @@ public class ContentController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Content> get(@PathVariable Long id) {
-        if(contentRepository.findById(id).isPresent()) {
-            return new ResponseEntity<>(contentRepository.findById(id).get(),HttpStatus.OK);
-        }
-        else {
+        if (contentRepository.findById(id).isPresent()) {
+            return new ResponseEntity<>(contentRepository.findById(id).get(), HttpStatus.OK);
+        } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
     @Transactional
     @PutMapping("/{id}")
-    public ResponseEntity<Content> put(@PathVariable Long id,@RequestBody Content content) {
-        if(contentRepository.findById(id).isPresent()) {
-            Content requestContent = entityManager.find(Content.class,id);
+    public ResponseEntity<Content> put(@PathVariable Long id, @RequestBody Content content) {
+        if (contentRepository.findById(id).isPresent()) {
+            Content requestContent = entityManager.find(Content.class, id);
             requestContent.setContext(content.getContext());
             entityManager.persist(requestContent);
             entityManager.flush();
             entityManager.clear();
-            return new ResponseEntity<>(requestContent,HttpStatus.OK);
-        }
-        else {
+            return new ResponseEntity<>(requestContent, HttpStatus.CREATED);
+        } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }

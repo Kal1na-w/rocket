@@ -13,3 +13,8 @@ spring:
     url: jdbc:mysql://localhost/rocket_db?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
     username: kal1na
     password: thePassword
+
+rocket.jwtSecret: JWTSuperSecretKey
+rocket.jwtExpirationInMs: 604800000
+
+

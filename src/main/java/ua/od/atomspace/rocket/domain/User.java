@@ -1,15 +1,22 @@
 package ua.od.atomspace.rocket.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import javax.persistence.*;
+import javax.swing.plaf.TreeUI;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
 
-public class User {
+public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -21,8 +28,10 @@ public class User {
 
     @Size(min = 3, max = 20)
     @NotNull
+    @JsonIgnore
     private String username;
     @NotNull
+    @JsonIgnore
     private String password;
     @NotNull
     private String firstName;
@@ -44,6 +53,31 @@ public class User {
     private Set<UserInProject> projects;
 
     public User() {
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return roles;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 
     public String getFirstName() {
@@ -140,6 +174,20 @@ public class User {
 
     public void setCourses(Set<UserInCourse> courses) {
 
+    }
+
+
+    @Override
+    public int hashCode() {
+        int result = id.hashCode();
+        result = 31 * result + username.hashCode();
+        result = 31 * result + password.hashCode();
+        result = 31 * result + (firstName != null ? firstName.hashCode() : 0);
+        result = 31 * result + (lastName != null ? lastName.hashCode() : 0);
+        result = 31 * result + (email != null ? email.hashCode() : 0);
+        result = 31 * result + (telegram != null ? telegram.hashCode() : 0);
+        result = 31 * result + (github != null ? github.hashCode() : 0);
+        return result;
     }
 
     @Override

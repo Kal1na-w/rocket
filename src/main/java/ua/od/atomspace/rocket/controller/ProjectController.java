@@ -62,7 +62,7 @@ public class ProjectController {
             entityManager.persist(requestProject);
             entityManager.flush();
             entityManager.clear();
-            return new ResponseEntity<>(requestProject,HttpStatus.OK);
+            return new ResponseEntity<>(requestProject,HttpStatus.CREATED);
         }
         else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

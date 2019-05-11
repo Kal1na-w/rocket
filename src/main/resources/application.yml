@@ -1,7 +1,9 @@
 spring:
-  data:
-    rest:
-      base-path: /api
+  profiles:
+    active: test
+---
+spring:
+  profiles: dev
 
   jpa:
     hibernate:
@@ -16,5 +18,21 @@ spring:
 
 rocket.jwtSecret: JWTSuperSecretKey
 rocket.jwtExpirationInMs: 604800000
+---
+spring:
+  profiles: test
 
+  jpa:
+    hibernate:
+      ddl-auto: update
+  main:
+    allow-bean-definition-overriding: true
+
+  datasource:
+    url: jdbc:mysql://localhost/rocket_db?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
+    username: kal1na
+    password: thePassword
+
+rocket.jwtSecret: JWTSuperSecretKey
+rocket.jwtExpirationInMs: 604800000
 

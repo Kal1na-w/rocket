@@ -22,22 +22,7 @@ public class RocketApplicationTest {
 
     @Test
     public void testContext() throws Exception {
-        mockMvc.perform(post("/api/auth/signup").content("{" +
-                "\"username\":\"Testuser\"," +
-                "\"firstName\":\"Testname\"," +
-                "\"lastName\":\"Testname\"," +
-                "\"password\":\"password\"," +
-                "\"email\":\"kalina.vald@gmail.com\"" +
-                "}").contentType("application/json"))
-                .andDo(print())
-                .andExpect(status().isCreated());
 
-        mockMvc.perform(post("/api/auth/signin").content("{" +
-                "\"username\":\"Testuser\"," +
-                "\"password\":\"password\"" +
-                "}").contentType("application/json"))
-                .andDo(print())
-                .andExpect(status().isOk());
     }
 
 }

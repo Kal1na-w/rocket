@@ -3,9 +3,11 @@ package ua.od.atomspace.rocket.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import ua.od.atomspace.rocket.domain.User;
 import ua.od.atomspace.rocket.repository.UserRepository;
+import ua.od.atomspace.rocket.security.CurrentUser;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -42,13 +44,9 @@ public class UserController {
         }
     }
 
-    @Transactional
-    @PostMapping
-    public ResponseEntity<User> post(@RequestBody User user) {
-        entityManager.persist(user);
-        entityManager.flush();
-        entityManager.clear();
-        return new ResponseEntity<>(user, HttpStatus.CREATED);
+    @GetMapping("/current")
+    public ResponseEntity<User> currentUser(@CurrentUser User user) {
+        return new ResponseEntity<>(user,HttpStatus.OK);
     }
 
     @Transactional

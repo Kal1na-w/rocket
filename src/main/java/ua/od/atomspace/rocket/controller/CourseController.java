@@ -7,14 +7,20 @@ import org.springframework.web.bind.annotation.*;
 import ua.od.atomspace.rocket.domain.Content;
 import ua.od.atomspace.rocket.domain.Course;
 import ua.od.atomspace.rocket.domain.Level;
+import ua.od.atomspace.rocket.domain.RoleInCourse;
+import ua.od.atomspace.rocket.domain.User;
+import ua.od.atomspace.rocket.domain.UserInCourse;
 import ua.od.atomspace.rocket.repository.CourseRepository;
 import ua.od.atomspace.rocket.repository.LevelRepository;
+import ua.od.atomspace.rocket.repository.UserInCourseRepository;
+import ua.od.atomspace.rocket.security.CurrentUser;
 import ua.od.atomspace.rocket.service.LevelService;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping(value = "api/courses")
@@ -24,18 +30,51 @@ public class CourseController {
     private final CourseRepository courseRepository;
     private final LevelRepository levelRepository;
     private final LevelService levelService;
+    private final UserInCourseRepository userInCourseRepository;
 
     @PersistenceContext
     private EntityManager entityManager;
 
     @Autowired
-    public CourseController(CourseRepository courseRepository, LevelRepository levelRepository, LevelService levelService) {
+    public CourseController(CourseRepository courseRepository, LevelRepository levelRepository, LevelService levelService, UserInCourseRepository userInCourseRepository) {
         this.courseRepository = courseRepository;
         this.levelRepository = levelRepository;
         this.levelService = levelService;
+        this.userInCourseRepository = userInCourseRepository;
     }
 
-    @GetMapping public ResponseEntity <List<Course>> getAll() {
+
+    /**
+     *  UserInCourse endpoints
+     */
+     @Transactional
+     @PostMapping("/{id}")
+     public ResponseEntity<?> joinUserToCourse(@PathVariable(name = "id") Course course,@CurrentUser User user) {
+        if(!userInCourseRepository.existsByCourseAndUser(course, user)) {
+            UserInCourse userInCourse = new UserInCourse();
+            userInCourse.setCourse(course);
+            userInCourse.setUser(entityManager.find(User.class, user.getId()));
+            userInCourse.setProgress(0);
+            userInCourse.setRoleInCourse(RoleInCourse.USER);
+            entityManager.persist(userInCourse);
+            entityManager.flush();
+            entityManager.clear();
+            return new ResponseEntity<>(HttpStatus.CREATED);
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+     }
+
+     @GetMapping("/{id}/users")
+     public ResponseEntity<Set<UserInCourse>> getUsers(@PathVariable(name = "id") Course course) {
+         return new ResponseEntity<>(course.getUsers(),HttpStatus.OK);
+     }
+
+
+    /**
+     * Course endpoints 
+     */
+    @GetMapping 
+    public ResponseEntity <List<Course>> getAll() {
         return new ResponseEntity<>(courseRepository.findAll(), HttpStatus.OK);
     }
 
@@ -89,6 +128,10 @@ public class CourseController {
         }
     }
 
+    /**
+     * Level endpoints
+     */
+
     @Transactional
     @PostMapping("/{courseId}/levels")
     public ResponseEntity<Level> postLevelToCourse(@PathVariable Long courseId,@RequestBody Level level) {
@@ -108,25 +151,6 @@ public class CourseController {
         }
     }
 
-//    @Transactional
-//    @PutMapping("/{courseId}/levels/{numberOfLevel}")
-//    public ResponseEntity<Level> putLevelToCourse(@PathVariable Long courseId,@PathVariable int numberOfLevel,@RequestBody Level level) {
-//        if(courseRepository.findById(courseId).isPresent()) {
-//            Level requestLevel = entityManager.find(
-//                    Level.class,
-//                    levelRepository.findByCourseAndNumberOfLevel(courseRepository.findById(courseId).get(),numberOfLevel).getId()
-//            );
-//            requestLevel.setName(level.getName());
-//            entityManager.persist(requestLevel);
-//            entityManager.flush();
-//            entityManager.clear();
-//            return new ResponseEntity<>(requestLevel,HttpStatus.OK);
-//        }
-//        else {
-//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//        }
-//    }
-
     @GetMapping("{courseId}/levels/{numberOfLevel}")
     public ResponseEntity<Level> getLevelByCourse(@PathVariable Long courseId,@PathVariable int numberOfLevel) {
         if(courseRepository.findById(courseId).isPresent()) {
@@ -144,6 +168,22 @@ public class CourseController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
+    @Transactional
+    @DeleteMapping("/{courseId}/levels/{numberOfLevel}")
+    public ResponseEntity<Level> deleteLevelByCourse(@PathVariable Long courseId,@PathVariable int numberOfLevel) {
+        if(courseRepository.findById(courseId).isPresent()) {
+            levelService.deleteAndReplace(courseRepository.findById(courseId).get(),numberOfLevel);
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    /**
+     * Content endpoints
+     */
 
     @Transactional
     @PostMapping("{courseId}/levels/{levelId}/contents")
@@ -201,15 +241,5 @@ public class CourseController {
         }
     }
 
-    @Transactional
-    @DeleteMapping("/{courseId}/levels/{numberOfLevel}")
-    public ResponseEntity<Level> deleteLevelByCourse(@PathVariable Long courseId,@PathVariable int numberOfLevel) {
-        if(courseRepository.findById(courseId).isPresent()) {
-            levelService.deleteAndReplace(courseRepository.findById(courseId).get(),numberOfLevel);
-            return new ResponseEntity<>(HttpStatus.OK);
-        }
-        else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }
+    
 }

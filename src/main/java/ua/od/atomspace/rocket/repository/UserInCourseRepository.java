@@ -1,6 +1,7 @@
 package ua.od.atomspace.rocket.repository;
 
 import org.springframework.data.repository.CrudRepository;
+
 import ua.od.atomspace.rocket.domain.Course;
 import ua.od.atomspace.rocket.domain.User;
 import ua.od.atomspace.rocket.domain.UserInCourse;
@@ -17,4 +18,5 @@ public interface UserInCourseRepository extends CrudRepository<UserInCourse, Lon
 
     List<UserInCourse> findAll();
 
+    boolean existsByCourseAndUser(Course course, User user);
 }

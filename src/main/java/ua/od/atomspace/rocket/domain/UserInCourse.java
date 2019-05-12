@@ -2,6 +2,9 @@ package ua.od.atomspace.rocket.domain;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.List;
 import java.util.Objects;
 
@@ -20,6 +23,7 @@ public class UserInCourse {
     @ManyToOne(targetEntity = Course.class,cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private Course course;
 
+    @JsonIgnore
     @ManyToMany(cascade = {CascadeType.PERSIST,CascadeType.REMOVE})
     @JoinTable(
             name = "user_in_course_content",

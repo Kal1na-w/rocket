@@ -23,19 +23,19 @@ public class TestContentController {
     @Autowired
     private MockMvc mockMvc;
 
-    @Test
-    public void testGetAll() throws Exception {
-        mockMvc.perform(get("/api/contents")).andDo(print()).andExpect(status().isOk());
-    }
+    // @Test
+    // public void testGetAll() throws Exception {
+    //     mockMvc.perform(get("/api/contents")).andDo(print()).andExpect(status().isOk());
+    // }
 
-    @Test
-    public void testGet() throws Exception {
-        mockMvc.perform(get("/api/contents/1")).andDo(print()).andExpect(status().isOk());
-    }
+    // @Test
+    // public void testGet() throws Exception {
+    //     mockMvc.perform(get("/api/contents/1")).andDo(print()).andExpect(status().isOk());
+    // }
 
-    @Test
-    public void testPut() throws Exception {
-        mockMvc.perform(put("/api/contents/1").content("{\"context\":\"Ok\"}").contentType("application/json"))
-                .andDo(print()).andExpect(status().isCreated());
-    }
+    // @Test
+    // public void testPut() throws Exception {
+    //     mockMvc.perform(put("/api/contents/1").content("{\"context\":\"Ok\"}").contentType("application/json"))
+    //             .andDo(print()).andExpect(status().isCreated());
+    // }
 }

@@ -3,6 +3,9 @@ package ua.od.atomspace.rocket.domain;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -17,6 +20,7 @@ public class Course {
     @Size(max = 128)
     private String name;
 
+    @JsonIgnore
     @OneToMany(targetEntity = UserInCourse.class, cascade = CascadeType.ALL, mappedBy = "course", orphanRemoval = true, fetch = FetchType.EAGER)
     private Set<UserInCourse> users;
 

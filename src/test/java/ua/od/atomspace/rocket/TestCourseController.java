@@ -32,71 +32,76 @@ public class TestCourseController {
 
     }
 
-    @Test
-    public void testDeleteLevelByCourse() throws Exception {
-        mockMvc.perform(delete("/api/courses/1/levels/1")).andDo(print()).andExpect(status().isOk());
-    }
+    // @Test
+    // public void testJoinUserToCourse() throws Exception {
+    //     mockMvc.perform(post("/api/courses/1").header("Authorization", "Bearer "))
+    // }
 
-    @Test
-    public void testDeleteContentByLvl() throws Exception {
-        mockMvc.perform(delete("/api/courses/1/levels/1/contents/1")).andDo(print()).andExpect(status().isOk());
-    }
+    // @Test
+    // public void testDeleteLevelByCourse() throws Exception {
+    //     mockMvc.perform(delete("/api/courses/1/levels/1")).andDo(print()).andExpect(status().isOk());
+    // }
 
-    @Test
-    public void testGetContentByLevel() throws Exception {
-        mockMvc.perform(get("/api/courses/1/levels/1")).andDo(print()).andExpect(status().isOk());
-    }
+    // @Test
+    // public void testDeleteContentByLvl() throws Exception {
+    //     mockMvc.perform(delete("/api/courses/1/levels/1/contents/1")).andDo(print()).andExpect(status().isOk());
+    // }
 
-    @Test
-    public void testPostContentByLvl() throws Exception {
-        mockMvc.perform(post("/api/courses/1/levels/1/contents").contentType("application/json")
-                .content("{\"context\":\"SOme content\"}")).andDo(print()).andExpect(status().isOk());
-    }
+    // @Test
+    // public void testGetContentByLevel() throws Exception {
+    //     mockMvc.perform(get("/api/courses/1/levels/1")).andDo(print()).andExpect(status().isOk());
+    // }
 
-    @Test
-    public void testGetAllLevelsByCourse() throws Exception {
-        mockMvc.perform(get("/api/courses/1/levels")).andDo(print()).andExpect(status().isOk());
-    }
+    // @Test
+    // public void testPostContentByLvl() throws Exception {
+    //     mockMvc.perform(post("/api/courses/1/levels/1/contents").contentType("application/json")
+    //             .content("{\"context\":\"SOme content\"}")).andDo(print()).andExpect(status().isOk());
+    // }
 
-    @Test
-    public void testGetLevelByCourse() throws Exception {
-        mockMvc.perform(get("/api/courses/1/levels/1")).andDo(print()).andExpect(status().isOk());
-    }
+    // @Test
+    // public void testGetAllLevelsByCourse() throws Exception {
+    //     mockMvc.perform(get("/api/courses/1/levels")).andDo(print()).andExpect(status().isOk());
+    // }
 
-    @Test
-    public void testPostLevelToCourse() throws Exception {
-        mockMvc.perform(
-                post("/api/courses/1/levels").contentType("application/json").content("{\"name\":\"TestLevel\"}"))
-                .andDo(print()).andExpect(status().isCreated());
-    }
+    // @Test
+    // public void testGetLevelByCourse() throws Exception {
+    //     mockMvc.perform(get("/api/courses/1/levels/1")).andDo(print()).andExpect(status().isOk());
+    // }
 
-    @Test
-    public void testGetOneCourse() throws Exception {
-        mockMvc.perform(get("/api/courses/1")).andDo(print()).andExpect(status().isOk());
-    }
+    // @Test
+    // public void testPostLevelToCourse() throws Exception {
+    //     mockMvc.perform(
+    //             post("/api/courses/1/levels").contentType("application/json").content("{\"name\":\"TestLevel\"}"))
+    //             .andDo(print()).andExpect(status().isCreated());
+    // }
 
-    @Test
-    public void testPutCourse() throws Exception {
-        mockMvc.perform(put("/api/courses/1").contentType("application/json").content("{\"name\":\"OhHiMark\"}"))
-                .andDo(print()).andExpect(status().isCreated());
-    }
+    // @Test
+    // public void testGetOneCourse() throws Exception {
+    //     mockMvc.perform(get("/api/courses/1")).andDo(print()).andExpect(status().isOk());
+    // }
 
-    @Test
-    public void testDeleteCourse() throws Exception {
-        mockMvc.perform(delete("/api/courses/1")).andDo(print()).andExpect(status().isOk());
-    }
+    // @Test
+    // public void testPutCourse() throws Exception {
+    //     mockMvc.perform(put("/api/courses/1").contentType("application/json").content("{\"name\":\"OhHiMark\"}"))
+    //             .andDo(print()).andExpect(status().isCreated());
+    // }
 
-    @Test
-    public void testPostCourses() throws Exception {
-        Course course = new Course("testName", Byte.parseByte("2"));
-        mockMvc.perform(post("/api/courses")
-                .content("{\"name\":\"" + course.getName() + "\",\"priority\":\"" + course.getPriority() + "\"}")
-                .contentType("application/json")).andDo(print()).andExpect(status().isCreated());
-    }
+    // @Test
+    // public void testDeleteCourse() throws Exception {
+    //     mockMvc.perform(delete("/api/courses/1")).andDo(print()).andExpect(status().isOk());
+    // }
 
-    @Test
-    public void testGetCourses() throws Exception {
-        mockMvc.perform(get("/api/courses")).andDo(print()).andExpect(status().isOk());
-    }
+    // @Test
+    // public void testPostCourses() throws Exception {
+    //     Course course = new Course("testName", Byte.parseByte("2"));
+    //     mockMvc.perform(post("/api/courses")
+    //             .content("{\"name\":\"" + course.getName() + "\",\"priority\":\"" + course.getPriority() + "\"}")
+    //             .contentType("application/json")).andDo(print()).andExpect(status().isCreated());
+    // }
+
+    // @Test
+    // public void testGetCourses() throws Exception {
+    //     mockMvc.perform(get("/api/courses")).andDo(print()).andExpect(status().isOk());
+    // }
 
 }

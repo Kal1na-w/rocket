@@ -24,40 +24,40 @@ public class TestProjectController {
     @Autowired
     private MockMvc mockMvc;
 
-    @Test
-    public void testGetAll() throws Exception {
-        mockMvc.perform(get("/api/projects"))
-            .andDo(print())
-            .andExpect(status().isOk());
-    }
+    // @Test
+    // public void testGetAll() throws Exception {
+    //     mockMvc.perform(get("/api/projects"))
+    //         .andDo(print())
+    //         .andExpect(status().isOk());
+    // }
 
-    @Test
-    public void testGet() throws Exception {
-        mockMvc.perform(get("/api/projects/1"))
-                .andDo(print())
-                .andExpect(status().isOk());
-    }
+    // @Test
+    // public void testGet() throws Exception {
+    //     mockMvc.perform(get("/api/projects/1"))
+    //             .andDo(print())
+    //             .andExpect(status().isOk());
+    // }
 
-    @Test
-    public void testPost() throws Exception {
-        mockMvc.perform(post("/api/projects").content("{\"name\":\"TestProject\"}").contentType("application/json"))
-                .andDo(print())
-                .andExpect(status().isCreated());
-    }
+    // @Test
+    // public void testPost() throws Exception {
+    //     mockMvc.perform(post("/api/projects").content("{\"name\":\"TestProject\"}").contentType("application/json"))
+    //             .andDo(print())
+    //             .andExpect(status().isCreated());
+    // }
 
-    @Test
-    public void testPut() throws Exception {
-        mockMvc.perform(put("/api/projects/1").content("{\"name\":\"TestProjectIsChanged\"}").contentType("application/json"))
-                .andDo(print())
-                .andExpect(status().isCreated());
+    // @Test
+    // public void testPut() throws Exception {
+    //     mockMvc.perform(put("/api/projects/1").content("{\"name\":\"TestProjectIsChanged\"}").contentType("application/json"))
+    //             .andDo(print())
+    //             .andExpect(status().isCreated());
 
 
-    }
+    // }
 
-    @Test
-    public void testDelete() throws Exception {
-        mockMvc.perform(delete("/api/projects/1"))
-                .andDo(print())
-                .andExpect(status().isOk());
-    }
+    // @Test
+    // public void testDelete() throws Exception {
+    //     mockMvc.perform(delete("/api/projects/1"))
+    //             .andDo(print())
+    //             .andExpect(status().isOk());
+    // }
 }

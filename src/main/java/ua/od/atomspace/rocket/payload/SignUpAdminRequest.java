@@ -1,0 +1,102 @@
+package ua.od.atomspace.rocket.payload;
+
+import javax.validation.constraints.*;
+
+public class SignUpAdminRequest {
+    @NotBlank
+    @Size(min = 4, max = 40)
+    private String firstName;
+
+    @NotBlank
+    @Size(min = 4, max = 40)
+    private String lastName;
+
+    @NotBlank
+    @Size(min = 3, max = 15)
+    private String username;
+
+    @NotBlank
+    @Size(max = 40)
+    @Email
+    private String email;
+
+    @NotBlank
+    @Size(min = 4, max = 40)
+    private String github;
+
+    @NotBlank
+    @Size(min = 4, max = 40)
+    private String telegram;
+
+    @NotBlank
+    @Size(min = 6, max = 20)
+    private String password;
+
+    @NotNull
+    @Size(min = 6, max = 128)
+    private String superSecret; //$2y$12$3WjFUzK8H.ZyEg1mz7z0F.gZI5/ByH5VNf97OHt1P2Ayvgoc5I6dK
+
+    public String getGithub() {
+        return github;
+    }
+
+    public String getSuperSecret() {
+        return superSecret;
+    }
+
+    public void setSuperSecret(String superSecret) {
+        this.superSecret = superSecret;
+    }
+
+    public void setGithub(String github) {
+        this.github = github;
+    }
+
+    public String getTelegram() {
+        return telegram;
+    }
+
+    public void setTelegram(String telegram) {
+        this.telegram = telegram;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+}

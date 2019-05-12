@@ -24,6 +24,19 @@ public class TestAuth {
     @Autowired
     private MockMvc mockMvc;
 
+    // @Test
+    // public void testRegister() throws Exception {
+    //     mockMvc.perform(post("/api/auth/signup").content("{" +
+    //             "\"firstName\":\"firstname\"," +
+    //             "\"lastName\":\"lastname\"," +
+    //             "\"username\":\"username\"," +
+    //             "\"email\":\"test@mail.com\"," +
+    //             "\"password\":\"password\"" +
+    //             "}").contentType("application/json"))
+    //             .andDo(print())
+    //             .andExpect(status().isOk());
+    // }
+
     @Test
     public void testAuthWithEmail() throws Exception {
         mockMvc.perform(post("/api/auth/signin").content("{" +

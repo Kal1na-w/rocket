@@ -1,6 +1,5 @@
 package ua.od.atomspace.rocket.controller;
 
-import org.hibernate.mapping.Collection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,17 +15,16 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import ua.od.atomspace.rocket.domain.Role;
 import ua.od.atomspace.rocket.domain.User;
-import ua.od.atomspace.rocket.exeption.AppException;
 import ua.od.atomspace.rocket.payload.ApiResponse;
 import ua.od.atomspace.rocket.payload.JwtAuthenticationResponse;
 import ua.od.atomspace.rocket.payload.LoginRequest;
+import ua.od.atomspace.rocket.payload.SignUpAdminRequest;
 import ua.od.atomspace.rocket.payload.SignUpRequest;
 import ua.od.atomspace.rocket.repository.UserRepository;
 import ua.od.atomspace.rocket.security.JwtTokenProvider;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.swing.text.html.parser.Entity;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.net.URI;
@@ -68,15 +66,47 @@ public class AuthController {
     }
 
     @Transactional
+    @PostMapping("/signup/admin")
+    public ResponseEntity<?> registerAdmin(@RequestBody SignUpAdminRequest signUpAdminRequest) {
+        if(signUpAdminRequest.getSuperSecret().equals("$2y$12$3WjFUzK8H.ZyEg1mz7z0F.gZI5/ByH5VNf97OHt1P2Ayvgoc5I6dK")) {
+            User user = new User();
+
+            user.setFirstName(signUpAdminRequest.getFirstName());
+
+            user.setLastName(signUpAdminRequest.getLastName());
+
+            user.setUsername(signUpAdminRequest.getUsername());
+
+            user.setGithub(signUpAdminRequest.getGithub());
+
+            user.setEmail(signUpAdminRequest.getEmail());
+
+            user.setPassword(signUpAdminRequest.getPassword());
+
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+            user.setRoles(Collections.singleton(Role.ADMIN));
+
+            entityManager.persist(user);
+            entityManager.flush();
+            entityManager.clear();
+
+            return new ResponseEntity<>(new ApiResponse(true, "Admin registered successfully"),HttpStatus.CREATED);
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
+
+    @Transactional
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@RequestBody SignUpRequest signUpRequest) {
         if(userRepository.existsByUsername(signUpRequest.getUsername())) {
-            return new ResponseEntity(new ApiResponse(false, "Username is already taken!"),
+            return new ResponseEntity<>(new ApiResponse(false, "Username is already taken!"),
                     HttpStatus.BAD_REQUEST);
         }
 
         if(userRepository.existsByEmail(signUpRequest.getEmail())) {
-            return new ResponseEntity(new ApiResponse(false, "Email Address already in use!"),
+            return new ResponseEntity<>(new ApiResponse(false, "Email Address already in use!"),
                     HttpStatus.BAD_REQUEST);
         }
 
@@ -102,10 +132,6 @@ public class AuthController {
         entityManager.flush();
         entityManager.clear();
 
-        URI location = ServletUriComponentsBuilder
-                .fromCurrentContextPath().path("/api/users/{username}")
-                .buildAndExpand(user.getUsername()).toUri();
-
-        return ResponseEntity.created(location).body(new ApiResponse(true, "User registered successfully"));
+        return new ResponseEntity<>(new ApiResponse(true, "User registered successfully"),HttpStatus.CREATED);
     }
 }

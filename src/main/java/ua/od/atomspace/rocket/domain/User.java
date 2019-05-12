@@ -5,13 +5,11 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
-import javax.swing.plaf.TreeUI;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -46,9 +44,11 @@ public class User implements UserDetails {
 
     private LocalDateTime lastVisit;
 
+    @JsonIgnore
     @OneToMany(targetEntity = UserInCourse.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true, mappedBy = "user")
     private Set<UserInCourse> courses;
 
+    @JsonIgnore
     @OneToMany(targetEntity = UserInProject.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "user", orphanRemoval = true)
     private Set<UserInProject> projects;
 

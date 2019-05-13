@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import ua.od.atomspace.rocket.domain.Role;
 import ua.od.atomspace.rocket.domain.User;
 import ua.od.atomspace.rocket.payload.ApiResponse;
@@ -27,7 +26,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
-import java.net.URI;
 import java.util.Collections;
 
 @RestController
@@ -65,6 +63,7 @@ public class AuthController {
         return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
     }
 
+
     @Transactional
     @PostMapping("/signup/admin")
     public ResponseEntity<?> registerAdmin(@RequestBody SignUpAdminRequest signUpAdminRequest) {
@@ -81,9 +80,7 @@ public class AuthController {
 
             user.setEmail(signUpAdminRequest.getEmail());
 
-            user.setPassword(signUpAdminRequest.getPassword());
-
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
+            user.setPassword(passwordEncoder.encode(signUpAdminRequest.getPassword()));
 
             user.setRoles(Collections.singleton(Role.ADMIN));
 
@@ -122,9 +119,7 @@ public class AuthController {
 
         user.setEmail(signUpRequest.getEmail());
 
-        user.setPassword(signUpRequest.getPassword());
-
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setPassword(passwordEncoder.encode(signUpRequest.getPassword()));
 
         user.setRoles(Collections.singleton(Role.USER));
 

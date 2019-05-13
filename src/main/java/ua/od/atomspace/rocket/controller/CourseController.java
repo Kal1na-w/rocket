@@ -4,18 +4,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ua.od.atomspace.rocket.domain.Content;
-import ua.od.atomspace.rocket.domain.Course;
-import ua.od.atomspace.rocket.domain.Level;
-import ua.od.atomspace.rocket.domain.RoleInCourse;
-import ua.od.atomspace.rocket.domain.User;
-import ua.od.atomspace.rocket.domain.UserInCourse;
+import ua.od.atomspace.rocket.domain.*;
 import ua.od.atomspace.rocket.repository.CourseRepository;
 import ua.od.atomspace.rocket.repository.LevelRepository;
 import ua.od.atomspace.rocket.repository.UserInCourseRepository;
 import ua.od.atomspace.rocket.security.CurrentUser;
 import ua.od.atomspace.rocket.service.LevelService;
 
+import javax.annotation.security.RolesAllowed;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
@@ -91,7 +87,10 @@ public class CourseController {
 
     @Transactional
     @PostMapping
-    public ResponseEntity <Course> post(@RequestBody Course course) {
+    public ResponseEntity <Course> post(@CurrentUser User user,@RequestBody Course course) {
+        if (!user.getRoles().contains(Role.MENTOR) || !user.getRoles().contains(Role.ADMIN)) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
         entityManager.persist(course);
         entityManager.flush();
         entityManager.clear();
@@ -100,7 +99,10 @@ public class CourseController {
 
     @Transactional
     @PutMapping("/{id}")
-    public ResponseEntity <Course> put(@PathVariable("id") Long id, @RequestBody Course course) {
+    public ResponseEntity <Course> put(@CurrentUser User user,@PathVariable("id") Long id, @RequestBody Course course) {
+        if(!user.getRoles().contains(Role.ADMIN) || !(userInCourseRepository.findByUserAndCourse(user,course).getRoleInCourse() == RoleInCourse.LEAD)) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
         if(courseRepository.findById(id).isPresent()) {
             Course requestCourse = entityManager.find(Course.class,id);
             requestCourse.setName(course.getName());
@@ -117,28 +119,32 @@ public class CourseController {
 
     @Transactional
     @DeleteMapping("/{id}")
-    public ResponseEntity <?> delete(@PathVariable("id") Long id) {
-        if(courseRepository.findById(id).isPresent()) {
-            Course course = entityManager.find(Course.class,id);
-            entityManager.remove(course);
-            return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity <?> delete(@CurrentUser User user,@PathVariable("id") Course pathCourse) {
+        if(!user.getRoles().contains(Role.ADMIN) || !(userInCourseRepository.findByUserAndCourse(user,pathCourse).getRoleInCourse() == RoleInCourse.LEAD)) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
-        else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        Course course = entityManager.find(Course.class,pathCourse.getId());
+        entityManager.remove(course);
+        entityManager.flush();
+        entityManager.clear();
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     /**
      * Level endpoints
      */
 
+
     @Transactional
     @PostMapping("/{courseId}/levels")
-    public ResponseEntity<Level> postLevelToCourse(@PathVariable Long courseId,@RequestBody Level level) {
-        if(courseRepository.findById(courseId).isPresent()) {
-            level.setNumberOfLevel(levelRepository.findAllByCourseOrderByNumberOfLevelAsc(courseRepository.findById(courseId).get()).size()+1);
-            level.setCourse(courseRepository.findById(courseId).get());
-            Course course = entityManager.find(Course.class,courseId);
+    public ResponseEntity<Level> postLevelToCourse(@CurrentUser User user,@PathVariable("courseId") Course pathCourse,@RequestBody Level level) {
+        if(!user.getRoles().contains(Role.ADMIN) || !(userInCourseRepository.findByUserAndCourse(user,pathCourse).getRoleInCourse() == RoleInCourse.LEAD)) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        if(courseRepository.findById(pathCourse.getId()).isPresent()) {
+            level.setNumberOfLevel(levelRepository.findAllByCourseOrderByNumberOfLevelAsc(courseRepository.findById(pathCourse.getId()).get()).size()+1);
+            level.setCourse(courseRepository.findById(pathCourse.getId()).get());
+            Course course = entityManager.find(Course.class,pathCourse.getId());
             int index = course.getLevels().size();
             course.getLevels().add(index,level);
             entityManager.persist(course);
@@ -152,9 +158,12 @@ public class CourseController {
     }
 
     @GetMapping("{courseId}/levels/{numberOfLevel}")
-    public ResponseEntity<Level> getLevelByCourse(@PathVariable Long courseId,@PathVariable int numberOfLevel) {
-        if(courseRepository.findById(courseId).isPresent()) {
-            return new ResponseEntity<>(levelRepository.findByCourseAndNumberOfLevel(courseRepository.findById(courseId).get(),numberOfLevel),HttpStatus.OK);
+    public ResponseEntity<Level> getLevelByCourse(@CurrentUser User user,@PathVariable("courseId") Course pathCourse,@PathVariable int numberOfLevel) {
+        if(!(userInCourseRepository.findByUserAndCourse(user,pathCourse).getProgress() >= numberOfLevel)) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        if(courseRepository.findById(pathCourse.getId()).isPresent()) {
+            return new ResponseEntity<>(levelRepository.findByCourseAndNumberOfLevel(courseRepository.findById(pathCourse.getId()).get(),numberOfLevel),HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
@@ -171,9 +180,12 @@ public class CourseController {
 
     @Transactional
     @DeleteMapping("/{courseId}/levels/{numberOfLevel}")
-    public ResponseEntity<Level> deleteLevelByCourse(@PathVariable Long courseId,@PathVariable int numberOfLevel) {
-        if(courseRepository.findById(courseId).isPresent()) {
-            levelService.deleteAndReplace(courseRepository.findById(courseId).get(),numberOfLevel);
+    public ResponseEntity<Level> deleteLevelByCourse(@CurrentUser User user,@PathVariable("courseId") Course pathCourse,@PathVariable int numberOfLevel) {
+        if(!user.getRoles().contains(Role.ADMIN) || !(userInCourseRepository.findByUserAndCourse(user,pathCourse).getRoleInCourse() == RoleInCourse.LEAD)) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        if(courseRepository.findById(pathCourse.getId()).isPresent()) {
+            levelService.deleteAndReplace(courseRepository.findById(pathCourse.getId()).get(),numberOfLevel);
             return new ResponseEntity<>(HttpStatus.OK);
         }
         else {
@@ -187,8 +199,11 @@ public class CourseController {
 
     @Transactional
     @PostMapping("{courseId}/levels/{levelId}/contents")
-    public ResponseEntity<Content> postContentByLvl(@PathVariable Long courseId, @PathVariable Long levelId, @RequestBody Content content){
-        if(courseRepository.findById(courseId).isPresent()) {
+    public ResponseEntity<Content> postContentByLvl(@CurrentUser User user,@PathVariable("courseId") Course pathCourse, @PathVariable Long levelId, @RequestBody Content content){
+        if(!user.getRoles().contains(Role.ADMIN) || !(userInCourseRepository.findByUserAndCourse(user,pathCourse).getRoleInCourse() == RoleInCourse.LEAD)) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        if(courseRepository.findById(pathCourse.getId()).isPresent()) {
             if(levelRepository.findById(levelId).isPresent()) {
                 content.setLevel(levelRepository.findById(levelId).get());
                 entityManager.persist(content);
@@ -207,8 +222,11 @@ public class CourseController {
 
     @Transactional
     @DeleteMapping("/{courseId}/levels/{levelId}/contents/{contentId}")
-    public ResponseEntity<?> deleteContentByLvl(@PathVariable Long courseId, @PathVariable Long levelId, @PathVariable Long contentId){
-        if(courseRepository.findById(courseId).isPresent()) {
+    public ResponseEntity<?> deleteContentByLvl(@CurrentUser User user,@PathVariable("courseId") Course pathCourse, @PathVariable Long levelId, @PathVariable Long contentId){
+        if(!user.getRoles().contains(Role.ADMIN) || !(userInCourseRepository.findByUserAndCourse(user,pathCourse).getRoleInCourse() == RoleInCourse.LEAD)) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        if(courseRepository.findById(pathCourse.getId()).isPresent()) {
             if(levelRepository.findById(levelId).isPresent()) {
                 Level level = entityManager.find(Level.class,levelId);
                 level.getContents().remove(entityManager.find(Content.class,contentId));

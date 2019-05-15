@@ -4,8 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ua.od.atomspace.rocket.domain.Role;
 import ua.od.atomspace.rocket.domain.User;
 import ua.od.atomspace.rocket.domain.UserInCourse;
+import ua.od.atomspace.rocket.domain.UserInProject;
 import ua.od.atomspace.rocket.repository.UserRepository;
 import ua.od.atomspace.rocket.security.CurrentUser;
 
@@ -50,26 +52,30 @@ public class UserController {
         return new ResponseEntity<>(user.getCourses(),HttpStatus.OK);
     }
 
+    @GetMapping("/current/projects")
+    public ResponseEntity<Set<UserInProject>> getProjectsForCurUser(@CurrentUser User user) {
+        return new ResponseEntity<>(user.getProjects(),HttpStatus.OK);
+    }
+
     @GetMapping("/current")
     public ResponseEntity<User> currentUser(@CurrentUser User user) {
         return new ResponseEntity<>(user,HttpStatus.OK);
     }
 
     @Transactional
+    @PutMapping("/current/edit")
+    public ResponseEntity<User> putCurrent(@CurrentUser User curUser,@RequestBody User user) {
+            return put(user,curUser);
+    }
+
+    @Transactional
     @PutMapping("/{id}")
-    public ResponseEntity<User> put(@PathVariable("id") Long id, @RequestBody User user) {
-        if (userRepository.findById(id).isPresent()) {
-            User requestUser = entityManager.find(User.class, id);
-            requestUser.setEmail(user.getEmail());
-            requestUser.setTelegram(user.getTelegram());
-            requestUser.setRoles(user.getRoles());
-            requestUser.setGithub(user.getGithub());
-            requestUser.setFirstName(user.getFirstName());
-            requestUser.setLastName(user.getLastName());
-            entityManager.persist(requestUser);
-            entityManager.flush();
-            entityManager.clear();
-            return new ResponseEntity<>(userRepository.save(requestUser), HttpStatus.OK);
+    public ResponseEntity<User> putUser(@CurrentUser User curUser,@PathVariable("id") User pathUser, @RequestBody User user) {
+        if(!curUser.getRoles().contains(Role.ADMIN)) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        if (userRepository.findById(pathUser.getId()).isPresent()) {
+           return put(user,pathUser);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -77,14 +83,31 @@ public class UserController {
 
     @Transactional
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable("id") Long id) {
-        if (userRepository.findById(id).isPresent()) {
-            User user = entityManager.find(User.class, id);
+    public ResponseEntity<?> delete(@CurrentUser User curUser,@PathVariable("id") User pathUser) {
+        if(!curUser.getRoles().contains(Role.ADMIN)) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        if (userRepository.findById(pathUser.getId()).isPresent()) {
+            User user = entityManager.find(User.class, pathUser.getId());
             entityManager.remove(user);
             entityManager.flush();
             entityManager.clear();
             return new ResponseEntity<>(HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    private ResponseEntity<User> put(User user,User pathUser) {
+        User requestUser = entityManager.find(User.class, pathUser.getId());
+        requestUser.setEmail(user.getEmail());
+        requestUser.setTelegram(user.getTelegram());
+        requestUser.setRoles(user.getRoles());
+        requestUser.setGithub(user.getGithub());
+        requestUser.setFirstName(user.getFirstName());
+        requestUser.setLastName(user.getLastName());
+        entityManager.persist(requestUser);
+        entityManager.flush();
+        entityManager.clear();
+        return new ResponseEntity<>(requestUser, HttpStatus.OK);
     }
 }

@@ -4,8 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ua.od.atomspace.rocket.domain.Role;
+import ua.od.atomspace.rocket.domain.RoleInCourse;
+import ua.od.atomspace.rocket.domain.User;
 import ua.od.atomspace.rocket.domain.UserInCourse;
 import ua.od.atomspace.rocket.repository.UserInCourseRepository;
+import ua.od.atomspace.rocket.security.CurrentUser;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -26,20 +30,6 @@ public class UserInCourseController {
         this.userInCourseRepository = userInCourseRepository;
     }
 
-    // @GetMapping("/byCourse")
-    // public ResponseEntity<Set<UserInCourse>> allByCourse(@RequestBody Course
-    // course) {
-    // Set<UserInCourse> userInCourses =
-    // userInCourseRepository.findAllByCourse(course);
-    // return new ResponseEntity<>(userInCourses, HttpStatus.OK);
-    // }
-    //
-    // @GetMapping("/byUser")
-    // public ResponseEntity<Set<UserInCourse>> allByUser(@RequestBody User user) {
-    // Set<UserInCourse> userInCourses = userInCourseRepository.findAllByUser(user);
-    // return new ResponseEntity<>(userInCourses, HttpStatus.OK);
-    // }
-
     @GetMapping
     public ResponseEntity<List<UserInCourse>> getAll() {
         return new ResponseEntity<>(userInCourseRepository.findAll(), HttpStatus.OK);
@@ -56,9 +46,12 @@ public class UserInCourseController {
 
     @Transactional
     @PutMapping("/{id}")
-    public ResponseEntity<UserInCourse> put(@PathVariable("id") Long id, @RequestBody UserInCourse userInCourse) {
-        if (userInCourseRepository.findById(id).isPresent()) {
-            UserInCourse requestUserInCourse = entityManager.find(UserInCourse.class, id);
+    public ResponseEntity<UserInCourse> put(@CurrentUser User user, @PathVariable("id") UserInCourse pathUserInCourse, @RequestBody UserInCourse userInCourse) {
+        if(!(userInCourseRepository.findByUserAndCourse(user,pathUserInCourse.getCourse()).getRoleInCourse() == RoleInCourse.LEAD) || user.getRoles().contains(Role.ADMIN)) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        if (userInCourseRepository.findById(pathUserInCourse.getId()).isPresent()) {
+            UserInCourse requestUserInCourse = entityManager.find(UserInCourse.class, pathUserInCourse.getId());
             requestUserInCourse.setRoleInCourse(userInCourse.getRoleInCourse());
             requestUserInCourse.setProgress(userInCourse.getProgress());
             entityManager.persist(requestUserInCourse);
@@ -70,18 +63,4 @@ public class UserInCourseController {
         }
     }
 
-    // @Transactional
-    // @DeleteMapping("/{id}")
-    // public ResponseEntity <?> delete(@PathVariable("id") Long id) {
-    // if(userInCourseRepository.findById(id).isPresent()) {
-    // UserInCourse userInCourse = entityManager.find(UserInCourse.class,id);
-    // entityManager.remove(userInCourse);
-    // entityManager.flush();
-    // entityManager.clear();
-    // return new ResponseEntity<>(HttpStatus.OK);
-    // }
-    // else {
-    // return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    // }
-    // }
 }

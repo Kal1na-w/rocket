@@ -65,7 +65,19 @@ public class CourseController {
          return new ResponseEntity<>(course.getUsers(),HttpStatus.OK);
      }
 
-
+     @DeleteMapping("/{id}/users/{userId}")
+     public ResponseEntity<?> deleteUserInCourse(@CurrentUser User curUser,@PathVariable("id") Course course,@PathVariable("userId") User pathUser) {
+         if(!curUser.getRoles().contains(Role.ADMIN) || !(userInCourseRepository.findByUserAndCourse(curUser,course).getRoleInCourse() == RoleInCourse.LEAD)) {
+             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+         }
+         UserInCourse userInCourse = entityManager.find(UserInCourse.class,userInCourseRepository.findByUserAndCourse(pathUser,course).getId());
+         Course responseCourse = entityManager.find(Course.class,course.getId());
+         responseCourse.getUsers().remove(userInCourse);
+         entityManager.persist(responseCourse);
+         entityManager.flush();
+         entityManager.clear();
+         return new ResponseEntity<>(HttpStatus.OK);
+     }
     /**
      * Course endpoints 
      */
@@ -243,21 +255,21 @@ public class CourseController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-
-    @GetMapping("/{courseId}/levels/{levelId}/contents")
-    public ResponseEntity<List<Content>> getContentByLevel(@PathVariable Long courseId,@PathVariable Long levelId) {
-        if(courseRepository.findById(courseId).isPresent()) {
-            if(levelRepository.findById(levelId).isPresent()) {
-                return new ResponseEntity<>(levelRepository.findById(levelId).get().getContents(),HttpStatus.OK);
-            }
-            else {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }
-        }
-        else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }
+//
+//    @GetMapping("/{courseId}/levels/{levelId}/contents")
+//    public ResponseEntity<List<Content>> getContentByLevel(@PathVariable Long courseId,@PathVariable Long levelId) {
+//        if(courseRepository.findById(courseId).isPresent()) {
+//            if(levelRepository.findById(levelId).isPresent()) {
+//                return new ResponseEntity<>(levelRepository.findById(levelId).get().getContents(),HttpStatus.OK);
+//            }
+//            else {
+//                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//            }
+//        }
+//        else {
+//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//        }
+//    }
 
     
 }

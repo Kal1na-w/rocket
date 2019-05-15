@@ -26,21 +26,6 @@ public class UserInProjectController {
         this.userInProjectRepository = userInProjectRepository;
     }
 
-    // @GetMapping("/byProject")
-    // public ResponseEntity<Set<UserInProject>> allByProject(@RequestBody Project
-    // project) {
-    // Set<UserInProject> userInProjects =
-    // userInProjectRepository.findAllByProject(project);
-    // return new ResponseEntity<>(userInProjects, HttpStatus.OK);
-    // }
-    //
-    // @GetMapping("/byUser")
-    // public ResponseEntity<Set<UserInProject>> allByUser(@RequestBody User user) {
-    // Set<UserInProject> userInProjects =
-    // userInProjectRepository.findAllByUser(user);
-    // return new ResponseEntity<>(userInProjects, HttpStatus.OK);
-    // }
-
     @GetMapping
     public ResponseEntity<List<UserInProject>> getAll() {
         return new ResponseEntity<>(userInProjectRepository.findAll(), HttpStatus.OK);

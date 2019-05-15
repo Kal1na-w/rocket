@@ -5,7 +5,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ua.od.atomspace.rocket.domain.Content;
+import ua.od.atomspace.rocket.domain.Role;
+import ua.od.atomspace.rocket.domain.RoleInCourse;
+import ua.od.atomspace.rocket.domain.User;
 import ua.od.atomspace.rocket.repository.ContentRepository;
+import ua.od.atomspace.rocket.repository.UserInCourseRepository;
+import ua.od.atomspace.rocket.security.CurrentUser;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -16,14 +21,17 @@ import java.util.List;
 @RequestMapping(value = "/api/contents")
 @CrossOrigin("*")
 public class ContentController {
+
     private final ContentRepository contentRepository;
+    private final UserInCourseRepository userInCourseRepository;
 
     @PersistenceContext
     private EntityManager entityManager;
 
     @Autowired
-    public ContentController(ContentRepository contentRepository) {
+    public ContentController(ContentRepository contentRepository, UserInCourseRepository userInCourseRepository) {
         this.contentRepository = contentRepository;
+        this.userInCourseRepository = userInCourseRepository;
     }
 
     @GetMapping
@@ -42,9 +50,12 @@ public class ContentController {
 
     @Transactional
     @PutMapping("/{id}")
-    public ResponseEntity<Content> put(@PathVariable Long id, @RequestBody Content content) {
-        if (contentRepository.findById(id).isPresent()) {
-            Content requestContent = entityManager.find(Content.class, id);
+    public ResponseEntity<Content> put(@CurrentUser User user, @PathVariable("id") Content pathContent, @RequestBody Content content) {
+        if(!(userInCourseRepository.findByUserAndCourse(user,pathContent.getLevel().getCourse()).getRoleInCourse() == RoleInCourse.LEAD) || user.getRoles().contains(Role.ADMIN)) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        if (contentRepository.findById(pathContent.getId()).isPresent()) {
+            Content requestContent = entityManager.find(Content.class, pathContent.getId());
             requestContent.setContext(content.getContext());
             entityManager.persist(requestContent);
             entityManager.flush();
